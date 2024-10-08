@@ -1,0 +1,15 @@
+trigger:
+- master  # Change this to your master branch
+
+pool:
+  name: 'Default'  # This is the agent pool where the Siri agent is located
+
+steps:
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    python app.py
+  displayName: 'Run the application'
