@@ -26,11 +26,22 @@ jobs:
     - name: SSH into EC2 and deploy
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@13.233.81.206 << 'EOF'
+          # Install Git if not already installed
+          sudo apt update
+          sudo apt install -y git
+
           # Clone the repository
-          git https://github.com/sireeshajangam/demo-python-app.git
+          git clone https://github.com/sireeshajangam/demo-python-app.git
+
+          # Navigate to the repository directory
+          cd demo-python-app
 
           # Build the Docker image
           sudo docker build -t python-app .
+
+          # Stop any running container with the same name
+          sudo docker stop python-container || true
+          sudo docker rm python-container || true
 
           # Run the Docker container
           sudo docker run -d -p 80:5000 --name python-container python-app
