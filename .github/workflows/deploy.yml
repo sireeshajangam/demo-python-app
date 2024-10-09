@@ -1,0 +1,37 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}  # Add your EC2 private key to GitHub Secrets
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker.io
+
+    - name: SSH into EC2 and deploy
+      run: |
+        ssh -o StrictHostKeyChecking=no ec2-user@your-ec2-public-ip << 'EOF'
+          # Clone the repository
+          git clone https://github.com/sireeshajangam/demo-python-app.git
+
+          # Build the Docker image
+          sudo docker build -t python-app .
+
+          # Run the Docker container
+          sudo docker run -d -p 80:5000 --name python-container python-app
+        EOF
